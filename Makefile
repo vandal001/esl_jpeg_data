@@ -1,4 +1,5 @@
-OPTFLAGS=-O3 -Wall -std=c99
+#OPTFLAGS=-O3 -Wall -std=c99
+OPTFLAGS=-O2 -Wall -std=c99 -Wl,-gc-sections
 
 
 # download image, or not

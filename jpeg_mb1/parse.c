@@ -18,7 +18,10 @@
 static unsigned char bit_count;	/* available bits in the window */
 static unsigned char window;
 int diff_unpack = 0;
-TIME t1,t2,t3,t4;
+int diff_IDCT = 0;
+int diff_color = 0;
+int diff_MEMMOVE = 0;
+TIME t1,t2,t3,t4,t5,t6,t7,t8;
 
 //unsigned long get_bits(FILE * fi, int number)
 unsigned long get_bits(unsigned int *fi, int number)
@@ -280,17 +283,34 @@ int process_MCU(unsigned int *fi)
 		TIME diff = t2 - t1;
 				
 		 //mk_mon_debug_info(LO_64(diff));
-		
+		t3 = hw_tifu_systimer_get();
 		IDCT(FBuff, MCU_buff[curcomp]);
+		t4 = hw_tifu_systimer_get();
+		TIME diff2 = t4 - t3;
 		diff_unpack = diff_unpack + LO_64(diff);
+		diff_IDCT = diff_IDCT + LO_64(diff2);
 	}
 	//mk_mon_debug_info(diff_unpack);
 
 		/* YCrCb to RGB color space transform here */
 	if (n_comp > 1)
+	{
+		t5 = hw_tifu_systimer_get();
 		color_conversion();
+		t6 = hw_tifu_systimer_get();
+		TIME diff3 = t6 - t5;
+		diff_color +=  LO_64(diff3);
+		//mk_mon_debug_info(LO_64(diff3));
+	}
 	else
-		MEMMOVE(ColorBuffer, (unsigned char *)MCU_buff[0], 64);
+	{
+		t7 = hw_tifu_systimer_get();
+		MEMMOVE(ColorBuffer, (unsigned char *)MCU_buff[0], 64);   // MEMMOVE is not called for lena.jpg
+		t8 = hw_tifu_systimer_get();
+		TIME diff4 = t8 - t7;
+		diff_MEMMOVE += LO_64(diff4);
+		//mk_mon_debug_info(LO_64(diff4));
+	}
 
 	/* cut last row/column as needed */
 	if ((y_size != ry_size) && (MCU_row == (my_size - 1)))

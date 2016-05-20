@@ -113,6 +113,9 @@ extern int mx_size, my_size;
 /* number of components 1,3 */
 extern int n_comp;
 extern int diff_unpack;
+extern int diff_IDCT;
+extern int diff_color;
+extern int diff_MEMMOVE;
 /* processing cursor variables */
 extern int in_frame, curcomp, MCU_row, MCU_column;
 /* current position in MCU unit */

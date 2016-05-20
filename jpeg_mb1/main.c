@@ -32,9 +32,9 @@ int main (void)
     TIME diff = t2 - t1;
     TIME diff2 = t3 - t2;
     TIME diff3 = t3 - t1;
-	//mk_mon_debug_info(LO_64(diff)); // color_the 1024x768 block
-	//mk_mon_debug_info(LO_64(diff2)); // Jpeg decoding
-	//mk_mon_debug_info(LO_64(diff3)); // Full run (decoding + coloring) 
+	mk_mon_debug_info(LO_64(diff)); // color_the 1024x768 block
+	mk_mon_debug_info(LO_64(diff2)); // Jpeg decoding
+	mk_mon_debug_info(LO_64(diff3)); // Full run (decoding + coloring) 
 	// Signal the monitor we are done.
 	mk_mon_debug_tile_finished();
 	return 0;

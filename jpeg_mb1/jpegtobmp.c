@@ -162,7 +162,7 @@ int JpegToBmp(unsigned int *input, volatile unsigned int *output)
 			}
 			get_size(input);
 			FGETC();	/* skip things */
-			mk_mon_debug_info(n_comp);
+			//mk_mon_debug_info(n_comp);
 			MCU_column = 0;
 			MCU_row = 0;
 			clear_bits();
@@ -198,18 +198,23 @@ int JpegToBmp(unsigned int *input, volatile unsigned int *output)
 				leftover = mx_size * my_size;
 
 			/* process till end of row without restarts */
-			t3 = hw_tifu_systimer_get();
+			
 			for (i = 0; i < leftover; i++)
 				{
+					t3 = hw_tifu_systimer_get();
 					process_MCU(input);
-					
+					t4 = hw_tifu_systimer_get();
+					TIME diff2 = t4 - t3;
+					diff_process_MCU += LO_64(diff2);
 				}
-			t4 = hw_tifu_systimer_get();
-					TIME diff = t4 - t3;
-					mk_mon_debug_info(diff_unpack);   // time for unpack_block
-					//mk_mon_debug_info(diff);     // time for process_MCU
-					mk_mon_debug_info(leftover);    // no of MCU blocks
-					mk_mon_debug_info(curcomp); // no. of components 
+			
+					//mk_mon_debug_info(diff_process_MCU);     // time for process_MCU
+					//mk_mon_debug_info(diff_unpack);   // time for unpack_block
+					//mk_mon_debug_info(diff_IDCT);    // time for IDCT block
+					//mk_mon_debug_info(diff_color);
+					//mk_mon_debug_info(diff_MEMMOVE);
+					//mk_mon_debug_info(leftover);    // no of MCU blocks
+					//mk_mon_debug_info(curcomp); // no. of components 
 			in_frame = 0;
 			break;
 
@@ -242,7 +247,7 @@ int JpegToBmp(unsigned int *input, volatile unsigned int *output)
 			break;
 		}		/* end switch */
 	} while (1);
-	mk_mon_debug_info(n_comp);
+	//mk_mon_debug_info(n_comp);
 	return 0;
 }
 

@@ -17,6 +17,8 @@
 
 static unsigned char bit_count;	/* available bits in the window */
 static unsigned char window;
+int diff_unpack = 0;
+TIME t1,t2,t3,t4;
 
 //unsigned long get_bits(FILE * fi, int number)
 unsigned long get_bits(unsigned int *fi, int number)
@@ -272,11 +274,19 @@ int process_MCU(unsigned int *fi)
 	}
 
 	for (curcomp = 0; MCU_valid[curcomp] != -1; curcomp++) {
+		t1 = hw_tifu_systimer_get();
 		unpack_block(fi, FBuff, MCU_valid[curcomp]);	/* pass index to HT,QT,pred */
+		t2 = hw_tifu_systimer_get();	
+		TIME diff = t2 - t1;
+				
+		 //mk_mon_debug_info(LO_64(diff));
+		
 		IDCT(FBuff, MCU_buff[curcomp]);
+		diff_unpack = diff_unpack + LO_64(diff);
 	}
+	//mk_mon_debug_info(diff_unpack);
 
-	/* YCrCb to RGB color space transform here */
+		/* YCrCb to RGB color space transform here */
 	if (n_comp > 1)
 		color_conversion();
 	else

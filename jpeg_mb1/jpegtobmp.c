@@ -53,10 +53,14 @@ int passed = 0;
 
 int verbose = 0;
 
+
+TIME t1,t2,t3,t4;
+
+
 /* Extra global variables for 5kk03 */
 
 int vld_count = 0;		/* Counter used by FGET and FSEEK in 5kk03.c */
-
+int diff_process_MCU = 0;
 /* End extra global variables for 5kk03 */
 
 /*-----------------------------------------------------------------*/
@@ -158,13 +162,14 @@ int JpegToBmp(unsigned int *input, volatile unsigned int *output)
 			}
 			get_size(input);
 			FGETC();	/* skip things */
-
+			mk_mon_debug_info(n_comp);
 			MCU_column = 0;
 			MCU_row = 0;
 			clear_bits();
 			reset_prediction();
 
 			/* main MCU processing loop here */
+		// t1 = hw_tifu_systimer_get();
 			if (restart_interval) {
 				n_restarts = ceil_div(mx_size * my_size, restart_interval) - 1;
 				leftover = mx_size * my_size - n_restarts * restart_interval;
@@ -172,7 +177,14 @@ int JpegToBmp(unsigned int *input, volatile unsigned int *output)
 
 				for (i = 0; i < n_restarts; i++) {
 					for (j = 0; j < restart_interval; j++)
-						process_MCU(input);
+						{ 
+							//t1 = hw_tifu_systimer_get();
+							process_MCU(input);
+							//t2 = hw_tifu_systimer_get();
+							//TIME diff = t2 - t1;
+     	 					//mk_mon_debug_info(LO_64(diff));
+
+						}
 					/* proc till all EOB met */
 
 					aux = get_next_MK(input);
@@ -186,9 +198,18 @@ int JpegToBmp(unsigned int *input, volatile unsigned int *output)
 				leftover = mx_size * my_size;
 
 			/* process till end of row without restarts */
+			t3 = hw_tifu_systimer_get();
 			for (i = 0; i < leftover; i++)
-				process_MCU(input);
-
+				{
+					process_MCU(input);
+					
+				}
+			t4 = hw_tifu_systimer_get();
+					TIME diff = t4 - t3;
+					mk_mon_debug_info(diff_unpack);   // time for unpack_block
+					//mk_mon_debug_info(diff);     // time for process_MCU
+					mk_mon_debug_info(leftover);    // no of MCU blocks
+					mk_mon_debug_info(curcomp); // no. of components 
 			in_frame = 0;
 			break;
 
@@ -221,7 +242,7 @@ int JpegToBmp(unsigned int *input, volatile unsigned int *output)
 			break;
 		}		/* end switch */
 	} while (1);
-
+	mk_mon_debug_info(n_comp);
 	return 0;
 }
 

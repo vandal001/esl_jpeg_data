@@ -1,0 +1,5 @@
+.build
+*.pnm
+*.png
+.bin
+response.txt
